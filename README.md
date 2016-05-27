@@ -8,4 +8,6 @@ Baraja is a jQuery plugin that allows to move elements in a card-like fashion an
 
 [demo](http://tympanus.net/Development/Baraja/)
 
+*some methods were inspired by fork [ricca509/Baraja](https://github.com/ricca509/Baraja)*
+
 Licensed under the MIT License

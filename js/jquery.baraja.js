@@ -38,6 +38,8 @@
     };
 
     $.Baraja.prototype = {
+        // Array to hold updatedStack callbacks
+        _updatedStack: [],
 
         _init: function(options) {
 
