@@ -59,8 +59,10 @@
 					<span id="nav-fanOther2">other</span>
 					<span id="nav-fanOther3">other</span>
 					<span id="nav-fanOther4">other...</span>
+					<span id="nav-fanOther5">monitor</span>
 
 					<span id="add">Add items</span>
+					<span id="remove">Remove items</span>
 				</nav>
 
 				<div class="baraja-demo">
@@ -90,6 +92,13 @@
 					<span id="nav-next">&gt;</span>
 					<span id="close">close</span>
 				</nav>
+				<!-- <section class="main">
+					<div class="baraja-demo">
+						<ul class="baraja-container">
+							<li id="add_test"><img src="images/8.jpg" alt="image8"/><h4>Nested Happiness</h4><p>Minim post-ironic banksy american apparel iphone wayfarers.</p></li>
+						</ul>
+					</div>
+				</section> -->
 			</section>
 			
         </div>
@@ -100,6 +109,8 @@
 
 				var $el = $( '#baraja-el' ),
 					baraja = $el.baraja();
+
+				window.barajaEl = baraja;
 
 				// navigation
 				$( '#nav-prev' ).on( 'click', function( event ) {
@@ -309,6 +320,22 @@
 						translation : 60,
 						scatter : true
 					} );
+
+				} );
+
+				$( '#nav-fanOther5' ).on( 'click', function( event ) {
+
+					baraja.fan( {
+						speed : 500,
+						easing : 'ease-out',
+						range : 50,
+						direction : 'right',
+						// origin : { y : 0,  x : 30},
+						center : true,
+						translation : -50,
+						rotate: false,
+						scatter : true
+					} );
 				
 				} );
 
@@ -328,10 +355,20 @@
 
 					$( this ).addClass( 'disabled' );
 
-					baraja.add( $('<li><img src="images/6.jpg" alt="image6"/><h4>Serenity</h4><p>Truffaut wes anderson hoodie 3 wolf moon labore, fugiat lomo iphone eiusmod vegan.</p></li><li><img src="images/7.jpg" alt="image7"/><h4>Dark Honor</h4><p>Chillwave mustache pinterest, marfa seitan umami id farm-to-table iphone.</p></li><li><img src="images/8.jpg" alt="image8"/><h4>Nested Happiness</h4><p>Minim post-ironic banksy american apparel iphone wayfarers.</p></li><li><img src="images/9.jpg" alt="image9"/><h4>Cherry Country</h4><p>Sint vinyl Austin street art odd future id trust fund, terry richardson cray.</p></li>') );
+					baraja.add( $('<li id="added_1"><img src="images/6.jpg" alt="image6"/><h4>Serenity</h4><p>Truffaut wes anderson hoodie 3 wolf moon labore, fugiat lomo iphone eiusmod vegan.</p></li><li id="added_2"><img src="images/7.jpg" alt="image7"/><h4>Dark Honor</h4><p>Chillwave mustache pinterest, marfa seitan umami id farm-to-table iphone.</p></li><li id="added_3"><img src="images/8.jpg" alt="image8"/><h4>Nested Happiness</h4><p>Minim post-ironic banksy american apparel iphone wayfarers.</p></li><li id="added_4"><img src="images/9.jpg" alt="image9"/><h4>Cherry Country</h4><p>Sint vinyl Austin street art odd future id trust fund, terry richardson cray.</p></li>') );
 				
 				} );
 
+				// example of how to remove items
+				$( '#remove' ).on( 'click', function( event ) {
+					if( $( this ).hasClass( 'disabled' ) ) {
+						return false;
+					}
+
+					$( this ).addClass( 'disabled' );
+
+					baraja.remove( $('[id^="added_"]') );
+				} );
 			});
 		</script>
     </body>
