@@ -522,8 +522,6 @@
                     step: step
                 });
 
-                debugger
-
                 self._applyTransition($el, {
                     // transform: 'translate(' + position + 'px) rotate(' + angle + 'deg)'
                     transform: settings.rotate ? 'translate(' + position + 'px) rotate(' + step + 'deg)' : 'translate(' + position + 'px,' + step + 'px)'
