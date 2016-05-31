@@ -74,6 +74,18 @@
             this._initEvents();
 
         },
+        _destroy: function() {
+
+            this._close();
+            this._finishEvents();
+            this._resetTransition(this.$items);
+            this._resetZindex(this.$items);
+
+            this.$el = null;
+            this.$items = null;
+            this._updatedStack = null;
+
+        },
         _setDefaultFanSettings: function() {
 
             this.fanSettings = {
@@ -151,16 +163,44 @@
 
         },
         // Subscriber method for 'updatedStack' event
-        _onUpdatedStack : function( callback ) {
+        _onUpdatedStack: function(callback) {
+
                 if (typeof(callback) === 'function') {
                         this._updatedStack.push(callback);
                 }
+
         },
         // Unscriber method for 'updatedStack' event
-        _offUpdatedStack : function( callback ) {
+        _offUpdatedStack: function(callback) {
+
                 if (typeof(callback) === 'function') {              
                         this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);                                
                 }
+
+        },
+        // By Default the function sort use id
+        _orderStack: function(orderBy) {
+            
+            this._resetZindex(this.$items);
+
+            if (typeof orderBy === 'function') {
+
+                this.$items.detach().sort(orderBy).appendTo(this.$el);
+
+            } else {
+
+                this.$items.detach().sort(function(a, b) {
+
+                    var ca = parseInt(/[\d]+/.exec(a.id)[0]);
+                    var cb = parseInt(/[\d]+/.exec(b.id)[0]);
+                    return ( ca === cb ) ? 0 : ( ca > cb ? 1 : -1 );
+
+                }).appendTo(this.$el);
+
+            }
+
+            this._setStack();
+
         },
         _updateStack: function($el, dir) {
 
@@ -179,9 +219,14 @@
 
             }).css('z-index', extra);
 
+            this._updatedStack.forEach(function(callback) {
+                callback.call();
+            });
+
         },
         // Returns the element at the top of the deck
-        _getTopStackElement : function() {                    
+        _getTopStackElement : function() {     
+
                 var max = -999, $el;
                 this.$items.each( function( i ) {
                         var zIndex = $( this ).css( 'z-index' ) - 0;
@@ -189,9 +234,10 @@
                                 max = zIndex;
                                 $el = $( this );
                         }
-                } );     
-        
+                } );
+
                 return $el;
+
         },
         _initEvents: function() {
 
@@ -226,6 +272,26 @@
                     self._move2front($(this));
 
                 }
+
+            });
+
+        },
+        _finishEvents: function() {
+
+            $(this.options.nextEl).off('click.baraja');
+            $(this.options.prevEl).off('click.baraja');
+            this.$el.off('click.baraja', 'li');
+            this.$items.off(this.transEndEventName);
+
+        },
+        // TODO: save z-index in data on init
+        _resetZindex: function($items) {
+
+            $items = $items || this.$items;
+
+            $items.each(function() {
+
+                $(this).css('z-index', 0);
 
             });
 
@@ -590,12 +656,11 @@
             // displays elements to animate remove
             $elems.css('opacity', 1);
             // on top!
-			$elems.css('z-index', 3000);
+            $elems.css('z-index', 3000);
 
             // reset
             this.$items = this.$el.children('li');
             this.itemsCount = this.$items.length;
-
 
             // animate removed items
             $elems.css('transform', !!transform ? transform : 'scale(1.8) translate(200px) rotate(15deg)').each(function(i) {
@@ -611,8 +676,8 @@
 
                     $el.off(self.transEndEventName);
                     self._resetTransition($el);
-					
-					// use detach to keeps all jQuery data associated with the element
+                    
+                    // use detach to keeps all jQuery data associated with the element
                     $el.detach();
 
                     if (cnt === removeElemsCount) {
@@ -623,6 +688,7 @@
                 });
 
             });
+
         },
         _allowAction: function() {
 
@@ -648,7 +714,7 @@
             }
 
         },
-        _dispatch: function(action, args) {
+        _dispatch: function(action, args, noPrepare) {
 
             var self = this;
 
@@ -658,11 +724,14 @@
 
             this.isAnimating = true;
 
-            this._prepare(function() {
+            if (!noPrepare)
+                this._prepare(function() {
 
-                action.call(self, args);
+                    action.call(self, args);
 
-            });
+                });
+            else
+                action.call(self, args);                
 
         },
         // public method: closes the deck
@@ -695,34 +764,47 @@
         // public method: adds new elements
         add: function($elems, transform) {
 
-            this._dispatch(this._add, $elems, transform);
+            this._dispatch(this._add, $elems, transform, true);
 
         },
         // public method: remove elements
-		remove: function($elems, transform) {
+        remove: function($elems, transform) {
 
-            this._dispatch(this._remove, $elems, transform);
+            this._dispatch(this._remove, $elems, transform, true);
 
         },
         // public method: bring the element in front of the stack
         move2front : function( $elem ) {
+
                 this._dispatch( this._move2front, $elem);
+
         },
         // public method: events subscriber
         on : function (eventName, callback) {
+
                 if (eventName === 'updateStack') {
                         this._dispatch( this._onUpdatedStack, callback);
                 }
+
         },
         // public method: events unscriber
         off : function (eventName, callback) {
+
                 if (eventName === 'updateStack') {
                         this._dispatch( this._offUpdatedStack, callback);
                 }
+
         },
         // public method: returns the jQuery element at the top of the stack
         getTopStackElement : function() {
+
                 return this._getTopStackElement();
+
+        },
+        orderStack: function(orderBy) {
+
+            this._dispatch(this._orderStack, orderBy);
+
         }
 
     };
