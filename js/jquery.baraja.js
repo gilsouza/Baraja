@@ -34,7 +34,9 @@
         // default transition speed
         speed: 300,
         // default transition easing
-        easing: 'ease-in-out'
+        easing: 'ease-in-out',
+        // this define if the method fan will be called after method close
+        reFan: false
     };
 
     $.Baraja.prototype = {
@@ -59,9 +61,7 @@
 
             this.$items = this.$el.children('li');
             this.itemsCount = this.$items.length;
-            if (this.itemsCount === 0) {
-                return false;
-            }
+            this.lastFanSettings = null;
             // support for CSS Transitions
             this.supportTransitions = Modernizr.csstransitions;
             // opened/closed deck
@@ -72,6 +72,10 @@
             this._setStack();
             // initialize some events
             this._initEvents();
+
+            // if (this.itemsCount === 0) {
+            //     return false;
+            // }
 
         },
         _destroy: function() {
@@ -413,7 +417,9 @@
                     $item.off(self.transEndEventName);
                     self.isAnimating = false;
                     self.closed = true;
-
+                    if (self.options.reFan && self.lastFanSettings) {
+                        self._fan(self.lastFanSettings);
+                    }
                 });
 
             });
@@ -503,13 +509,15 @@
             }, force);
 
         },
-        _fan: function(settings) {
+        _fan: function(settings, callback) {
 
             var self = this;
 
             this.closed = false;
 
             settings = this._validateDefaultFanSettings(settings || {});
+
+            this.lastFanSettings = settings;
 
             // set transform origins
             // if settings.rotate = true
@@ -598,6 +606,8 @@
 
                     if (cnt === self.itemsCount - 1) {
                         self.isAnimating = false;
+
+                        if (callback) callback.call();
                     }
 
                 });
@@ -606,7 +616,8 @@
 
         },
         // adds new elements to the deck
-        _add: function($elems, transform) {
+        // TODO: argumento transform
+        _add: function($elems, callback, transform) {
 
             var self = this,
                 newElemsCount = $elems.length,
@@ -639,6 +650,16 @@
 
                     if (cnt === newElemsCount) {
                         self.isAnimating = false;
+                        
+                        if (self.options.reFan && self.lastFanSettings) {
+                        
+                            self._prepare(function() {
+
+                                self._fan.call(self, self.lastFanSettings, callback);
+
+                            });
+                            
+                        }
                     }
 
                 });
@@ -647,7 +668,8 @@
 
         },
         // remove elements in the deck
-        _remove: function($elems, transform) {
+        // TODO: argumento transform
+        _remove: function($elems, callback, transform) {
 
             var self = this,
                 removeElemsCount = $elems.length,
@@ -682,7 +704,24 @@
 
                     if (cnt === removeElemsCount) {
                         self.isAnimating = false;
-                        self._setStack(); 
+                        // reset
+                        self.$items = self.$el.children('li');
+                        self.itemsCount = self.$items.length;
+
+                        if (self.options.reFan && self.lastFanSettings) {
+                            
+                            self._prepare(function() {
+
+                                self._fan.call(self, self.lastFanSettings, callback);
+
+                            });
+
+                        } else {
+
+                            self._setStack();
+                            callback.call();
+
+                        }
                     }
 
                 });
@@ -714,7 +753,7 @@
             }
 
         },
-        _dispatch: function(action, args, noPrepare) {
+        _dispatch: function(action, args, args1) {
 
             var self = this;
 
@@ -724,14 +763,11 @@
 
             this.isAnimating = true;
 
-            if (!noPrepare)
-                this._prepare(function() {
+            this._prepare(function() {
 
-                    action.call(self, args);
+                action.call(self, args, args1);
 
-                });
-            else
-                action.call(self, args);                
+            });
 
         },
         // public method: closes the deck
@@ -762,15 +798,14 @@
 
         },
         // public method: adds new elements
-        add: function($elems, transform) {
-
-            this._dispatch(this._add, $elems, transform, true);
+        add: function($elems, callback) {
+            this._dispatch(this._add, $elems, callback);
 
         },
         // public method: remove elements
-        remove: function($elems, transform) {
+        remove: function($elems, callback) {
 
-            this._dispatch(this._remove, $elems, transform, true);
+            this._dispatch(this._remove, $elems, callback);
 
         },
         // public method: bring the element in front of the stack
