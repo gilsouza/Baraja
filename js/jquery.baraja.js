@@ -103,20 +103,20 @@
                 // if center:true, then the first one will have 45deg
                 // and the last one -45deg; in both cases the difference is 90deg
                 range: 90,
-                // this defines the position of the first item 
+                // this defines the position of the first item
                 // (to the right, to the left)
                 // and its angle (clockwise / counterclockwise)
                 direction: 'right',
                 // transform origin:
-                // you can also pass a minX and maxX, meaning the left value 
-                // will vary between minX and maxX 
+                // you can also pass a minX and maxX, meaning the left value
+                // will vary between minX and maxX
                 origin: {
                     x: 25,
                     y: 100
                 },
                 // additional translation of each item
                 translation: 0,
-                // if the cards should be centered after the transform 
+                // if the cards should be centered after the transform
                 // is applied
                 center: true,
                 // add a random factor to the final transform
@@ -140,13 +140,13 @@
             settings.range = settings.range || this.fanSettings.range;
             settings.translation = settings.translation || this.fanSettings.translation;
             if (settings.rotate == undefined) {
-                settings.rotate = this.fanSettings.rotate
+                settings.rotate = this.fanSettings.rotate;
             }
             if (settings.center == undefined) {
-                settings.center = this.fanSettings.center
+                settings.center = this.fanSettings.center;
             }
             if (settings.scatter == undefined) {
-                settings.scatter = this.fanSettings.scatter
+                settings.scatter = this.fanSettings.scatter;
             }
 
             this.direction = settings.direction;
@@ -184,7 +184,7 @@
         },
         // By Default the function sort use id
         _orderStack: function(orderBy) {
-            
+
             this._resetZindex(this.$items);
 
             if (typeof orderBy === 'function') {
@@ -217,7 +217,7 @@
             this.$items.filter(function() {
 
                 var zIdx = Number($(this).css('z-index')),
-                    cond = dir === 'next' ? zIdx < currZIndex : zIdx > currZIndex
+                    cond = dir === 'next' ? zIdx < currZIndex : zIdx > currZIndex;
 
                 return cond;
 
@@ -229,7 +229,7 @@
 
         },
         // Returns the element at the top of the deck
-        _getTopStackElement : function() {     
+        _getTopStackElement : function() {
 
                 var max = -999, $el;
                 this.$items.each( function( i ) {
@@ -350,7 +350,7 @@
                     '-ms-transition': prop + ' ' + speed + 'ms ' + easing + ' ' + delay + 'ms',
                     '-o-transition': prop + ' ' + speed + 'ms ' + easing + ' ' + delay + 'ms',
                     'transition': prop + ' ' + speed + 'ms ' + easing + ' ' + delay + 'ms'
-            }
+            };
 
             $el.css(styleCSS);
 
@@ -426,8 +426,6 @@
 
         },
         _move2front: function($item) {
-            console.log('_move2front');
-            debugger;
 
             this.isAnimating = true;
 
@@ -437,8 +435,9 @@
                     self.isAnimating = false;
                 } : function() {
                     return false;
-                },
-                $item = isTop ? null : $item;
+                };
+
+            $item = isTop ? null : $item;
 
             // if it's the one with higher z-index, just close the baraja
             if (!this.closed) {
@@ -620,7 +619,6 @@
         // adds new elements to the deck
         // TODO: argumento transform
         _add: function($elems, callback, transform) {
-            console.log('Opa adicionando!!!');
 
             var self = this,
                 newElemsCount = $elems.length,
@@ -655,7 +653,7 @@
                         // reset
                         self.$items = self.$el.children('li');
                         self.itemsCount = self.$items.length;
-                    
+
                         self.isAnimating = false;
 
                         // if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
@@ -701,7 +699,6 @@
         // remove elements in the deck
         // TODO: argumento transform
         _remove: function($elems, callback, transform) {
-            console.log('Opa removendo!!!');
 
             var self = this,
                 removeElemsCount = $elems.length,
@@ -720,7 +717,7 @@
             $elems.css('transform', !!transform ? transform : 'scale(1.8) translate(200px) rotate(15deg)').each(function(i) {
 
                 var $el = $(this);
-                
+
                 self._setTransition($el, 'all', 500, 'ease-out', i * 200);
                 self._applyTransition($el, {
                     opacity: 0
@@ -730,7 +727,7 @@
 
                     $el.off(self.transEndEventName);
                     self._resetTransition($el);
-                    
+
                     // use detach to keeps all jQuery data associated with the element
                     $el.detach();
 
@@ -751,10 +748,10 @@
                         //     });
 
                         // } else {
-                            
+
                             // if (callback)
                             //     callback.call();
-                            
+
                         if (callback) {
                             self._addQueue('callback', callback);
                         }
@@ -807,29 +804,30 @@
 
             var self = this;
 
-            console.groupCollapsed('_addQueue');
-                console.log(queue);
+            // console.groupCollapsed('_addQueue');
+            //     console.log(queue);
 
                 this.$el.queue(queue, action);
 
-                console.log(this.$el.queue(queue).length);
-                console.trace();
-
-            console.groupEnd('_addQueue');
+            //     console.log(this.$el.queue(queue).length);
+            //     console.trace();
+            //
+            // console.groupEnd('_addQueue');
 
         },
         _execQueue: function(queue) {
-            console.log('_removeQueue');
-
-            console.groupCollapsed(queue);
+            // console.log('_removeQueue');
+            //
+            // console.groupCollapsed(queue);
 
                 this.$el.dequeue(queue);
-                console.log(this.$el.queue(queue).length);
-
-            console.groupEnd(queue);
+            //     console.log(this.$el.queue(queue).length);
+            //
+            // console.groupEnd(queue);
 
         },
         _execAllQueue: function(queue) {
+
             var callbacks = this.$el.queue(queue);
 
             this.$el.queue(queue, []);
@@ -839,23 +837,13 @@
                     c.call();
                 });
             }
+
         },
         _isQueue: function(queue) {
+
             return this.$el.queue(queue).length > 0;
+
         },
-        // _execQueue: function() {
-        //     console.log('_exeQueue');
-
-        //     if (this.queue.length > 0) {
-
-        //         var action = this.queue.shift();
-        //         // this._removeQueue(action);
-        //         action.call();
-
-        //         console.log(this.queue.length);
-        //     }
-
-        // },
         _dispatch: function(action, args, args1) {
             var self = this;
 
@@ -962,7 +950,9 @@
 
         if (window.console) {
 
-            window.console.error(message);
+            if (window.console.hasOwnProperty('error')) {
+                window.console.error(message);
+            }
 
         }
 
