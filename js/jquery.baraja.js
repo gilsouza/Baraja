@@ -46,6 +46,7 @@
         _updatedStack: [],
 
         _init: function(options) {
+            console.log('init');
 
             // options
             this.options = $.extend(true, {}, $.Baraja.defaults, options);
@@ -79,6 +80,7 @@
 
         },
         _destroy: function() {
+            console.log('destroy');
 
             this._close();
             this._finishEvents();
@@ -91,6 +93,7 @@
 
         },
         _setDefaultFanSettings: function() {
+            console.log('_setDefaultFanSettings');
 
             this.fanSettings = {
                 // speed for opening/closing
@@ -127,6 +130,7 @@
 
         },
         _validateDefaultFanSettings: function(settings) {
+            console.log('_validateDefaultFanSettings');
 
             if (!settings.origin) {
                 settings.origin = this.fanSettings.origin;
@@ -139,13 +143,14 @@
             settings.direction = settings.direction || this.fanSettings.direction;
             settings.range = settings.range || this.fanSettings.range;
             settings.translation = settings.translation || this.fanSettings.translation;
-            if (settings.rotate == undefined) {
+
+            if (settings.rotate === undefined) {
                 settings.rotate = this.fanSettings.rotate;
             }
-            if (settings.center == undefined) {
+            if (settings.center === undefined) {
                 settings.center = this.fanSettings.center;
             }
-            if (settings.scatter == undefined) {
+            if (settings.scatter === undefined) {
                 settings.scatter = this.fanSettings.scatter;
             }
 
@@ -155,6 +160,7 @@
 
         },
         _setStack: function($items) {
+            console.log('_setStack');
 
             var self = this;
             $items = $items || this.$items;
@@ -168,6 +174,7 @@
         },
         // Subscriber method for 'updatedStack' event
         _onUpdatedStack: function(callback) {
+            console.log('_onUpdatedStack');
 
             if (typeof(callback) === 'function') {
                 this._updatedStack.push(callback);
@@ -176,6 +183,7 @@
         },
         // Unscriber method for 'updatedStack' event
         _offUpdatedStack: function(callback) {
+            console.log('_offUpdatedStack');
 
             if (typeof(callback) === 'function') {
                 this._updatedStack.splice(this._updatedStack.indexOf(callback), 1);
@@ -184,6 +192,7 @@
         },
         // By Default the function sort use id
         _orderStack: function(orderBy) {
+            console.log('_orderStack');
 
             this._resetZindex(this.$items);
 
@@ -207,6 +216,7 @@
 
         },
         _updateStack: function($el, dir) {
+            console.log('_updateStack');
 
             var currZIndex = Number($el.css('z-index')),
                 newZIndex = dir === 'next' ? this.itemZIndexMin - 1 : this.itemZIndexMin + this.itemsCount,
@@ -230,6 +240,7 @@
         },
         // Returns the element at the top of the deck
         _getTopStackElement : function() {
+            console.log('_getTopStackElement');
 
                 var max = -999, $el;
                 this.$items.each( function( i ) {
@@ -244,6 +255,7 @@
 
         },
         _initEvents: function() {
+            console.log('_initEvents');
 
             var self = this;
 
@@ -281,6 +293,7 @@
 
         },
         _finishEvents: function() {
+            console.log('_finishEvents');
 
             $(this.options.nextEl).off('click.baraja');
             $(this.options.prevEl).off('click.baraja');
@@ -290,6 +303,7 @@
         },
         // TODO: save z-index in data on init
         _resetZindex: function($items) {
+            console.log('_resetZindex');
 
             $items = $items || this.$items;
 
@@ -301,6 +315,7 @@
 
         },
         _resetTransition: function($el) {
+            console.log('_resetTransition');
 
             $el.css({
                 '-webkit-transition': 'none',
@@ -312,11 +327,13 @@
 
         },
         _setOrigin: function($el, x, y) {
+            console.log('_setOrigin');
 
             $el.css('transform-origin', x + '% ' + y + '%');
 
         },
         _setTransition: function($el, prop, speed, easing, delay) {
+            console.log('_setTransition');
 
             if (!this.supportTransitions) {
                 return false;
@@ -334,9 +351,7 @@
                 delay = 0;
             }
 
-            var styleCSS = '';
-
-            prop === 'transform' ?
+            var styleCSS = prop === 'transform' ?
                 styleCSS = {
                     '-webkit-transition': '-webkit-transform ' + speed + 'ms ' + easing + ' ' + delay + 'ms',
                     '-moz-transition': '-moz-transform ' + speed + 'ms ' + easing + ' ' + delay + 'ms',
@@ -356,6 +371,7 @@
 
         },
         _applyTransition: function($el, styleCSS, fncomplete, force) {
+            console.log('_applyTransition');
 
             if (this.supportTransitions) {
 
@@ -386,7 +402,8 @@
             }
 
         },
-        _navigate: function(dir) {
+        _navigate: function(dir, fade) {
+            console.log('_navigate');
 
             this.closed = false;
 
@@ -401,9 +418,18 @@
                 translation = dir === 'next' ? $item.outerWidth(true) + extra : $item.outerWidth(true) * -1 - extra,
                 rotation = dir === 'next' ? 5 : 5 * -1;
 
-            this._setTransition($item, 'transform', this.options.speed, this.options.easing);
+            if (fade) {
 
-            this._applyTransition($item, {
+                $item.css('opacity', dir === 'next' ? 1 : 0);
+                this._setTransition($item, 'opacity', this.options.speed, this.options.easing);
+
+            } else {
+
+                this._setTransition($item, 'transform', this.options.speed, this.options.easing);
+
+            }
+
+            this._applyTransition($item, fade ? { opacity: dir === 'next' ? 0 : 1 } : {
                 transform: 'translate(' + translation + 'px) rotate(' + rotation + 'deg)'
             }, function() {
 
@@ -415,17 +441,43 @@
                 }, function() {
 
                     $item.off(self.transEndEventName);
+                    if (fade) $item.css('opacity', dir === 'next' ? 1 : 0);
                     self.isAnimating = false;
                     self.closed = true;
-                    if (self.options.reFan && self.lastFanSettings) {
-                        self._fan(self.lastFanSettings);
-                    }
+
+                    self._dispatchQueue();
+
+                    // if (self._isQueue('_dispatch')) {
+                    //
+                    //     self._execQueue('_dispatch');
+                    //
+                    // } else if (self.options.reFan && self.lastFanSettings) {
+                    //
+                    //     self._fan(self.lastFanSettings);
+                    //
+                    // }
                 });
 
             });
 
         },
+        _dispatchQueue: function() {
+            console.log('_dispatchQueue');
+
+            var self = this;
+
+            if (self._isQueue('_dispatch')) {
+
+                self._execQueue('_dispatch');
+
+            } else if (self.options.reFan && self.lastFanSettings) {
+
+                self._fan(self.lastFanSettings);
+
+            }
+        },
         _move2front: function($item) {
+            console.log('_move2front');
 
             this.isAnimating = true;
 
@@ -439,19 +491,17 @@
 
             $item = isTop ? null : $item;
 
+            if (isTop) {
+                this.isAnimating = false;
+                // self._fan(self.lastFanSettings);
+                return false;
+            }
+
             // if it's the one with higher z-index, just close the baraja
             if (!this.closed) {
 
                 this._close(callback, $item);
 
-            } else {
-
-                this._fan();
-
-            }
-
-            if (isTop) {
-                return false;
             }
 
             this._resetTransition($item);
@@ -475,12 +525,28 @@
                     $item.off(self.transEndEventName);
                     self.isAnimating = false;
 
+                    self._dispatchQueue();
+                    // if (self.options.reFan && self.lastFanSettings) {
+                    //     if (self._isQueue('_dispatch')) {
+                    //
+                    //         self._execQueue('_dispatch');
+                    //
+                    //     } else {
+                    //
+                    //         self._fan(self.lastFanSettings);
+                    //
+                    //     }
+                    // } else {
+                    //     self.isAnimating = false;
+                    // }
+
                 });
 
             }, this.options.speed / 2);
 
         },
         _close: function(callback, $item) {
+            console.log('_close');
 
             var self = this,
                 $items = self.$items,
@@ -511,6 +577,7 @@
 
         },
         _fan: function(settings, callback) {
+            console.log('_fan');
 
             var self = this;
 
@@ -608,7 +675,8 @@
                     if (cnt === self.itemsCount - 1) {
                         self.isAnimating = false;
 
-                        if (callback) callback.call();
+                        // if (callback) callback.call();
+                        // self._execAllQueue('callback');
                     }
 
                 });
@@ -619,19 +687,24 @@
         // adds new elements to the deck
         // TODO: argumento transform
         _add: function($elems, callback, transform) {
+            console.log('_add');
 
             var self = this,
                 newElemsCount = $elems.length,
                 cnt = 0;
 
-            $elems.css('opacity', 0).appendTo(this.$el);
+            // if (this.$el.find($elems).length)
+            //     $elems.css('opacity', 0);
+            // else
+                $elems.css('opacity', 0).appendTo(this.$el);
 
             // reset
             this.$items = this.$el.children('li');
             this.itemsCount = this.$items.length;
 
             // set z-indexes
-            this._setStack($elems);
+            // this._setStack($elems);
+            this._setStack();
 
             // animate new items
             $elems.css('transform', !!transform ? transform : 'scale(1.8) translate(200px) rotate(15deg)').reverse().each(function(i) {
@@ -651,45 +724,35 @@
 
                     if (cnt === newElemsCount) {
                         // reset
-                        self.$items = self.$el.children('li');
-                        self.itemsCount = self.$items.length;
+                        // self.$items = self.$el.children('li');
+                        // self.itemsCount = self.$items.length;
+                        // self._setStack();
+
+                        // if (callback) self._addQueue('callback', callback);
 
                         self.isAnimating = false;
 
-                        // if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
-
-                        //     self._prepare(function() {
-
-                        //         self._fan.call(self, self.lastFanSettings, callback);
-
-                        //     });
-
-                        // } else {
-
-                            // if (callback)
-                            //     callback.call();
-
-                        if (callback) {
-                            self._addQueue('callback', callback);
-                        }
-
                         if (self._isQueue('_dispatch')) {
+
                             self._execQueue('_dispatch');
+
                         } else {
-                            self._execAllQueue('callback');
+
+                            if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
+
+                                self._prepare(function() {
+
+                                    self._fan.call(self, self.lastFanSettings, true);
+
+                                });
+                            } else {
+
+                                self._execAllQueue('callback');
+
+                            }
                         }
-
-
-
-                        // if (self._isQueue('callback'))
-                        //     self._execQueue('callback');
-
-                        // }
 
                     }
-
-                    // console.log('exe_dispatch');
-                    // self.$el.dequeue('_dispatch');
 
                 });
 
@@ -699,6 +762,12 @@
         // remove elements in the deck
         // TODO: argumento transform
         _remove: function($elems, callback, transform) {
+            console.log('_remove');
+
+            if ($elems.length < 1) {
+                this.isAnimating = false;
+                return false;
+            }
 
             var self = this,
                 removeElemsCount = $elems.length,
@@ -718,7 +787,7 @@
 
                 var $el = $(this);
 
-                self._setTransition($el, 'all', 500, 'ease-out', i * 200);
+                self._setTransition($el, 'all', 500, 'ease-out', i * 400);
                 self._applyTransition($el, {
                     opacity: 0
                 }, function() {
@@ -732,44 +801,42 @@
                     $el.detach();
 
                     if (cnt === removeElemsCount) {
-                        self.isAnimating = false;
                         // reset
                         self.$items = self.$el.children('li');
                         self.itemsCount = self.$items.length;
 
                         self._setStack();
 
-                        // if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
-
-                        //     self._prepare(function() {
-
-                        //         self._fan.call(self, self.lastFanSettings, callback);
-
-                        //     });
-
-                        // } else {
-
-                            // if (callback)
-                            //     callback.call();
-
                         if (callback) {
+
                             self._addQueue('callback', callback);
+
                         }
+
+                        self.isAnimating = false;
 
                         if (self._isQueue('_dispatch')) {
+
                             self._execQueue('_dispatch');
+
                         } else {
-                            self._execAllQueue('callback');
+
+                            if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
+
+                                self._prepare(function() {
+
+                                    self._fan.call(self, self.lastFanSettings, true);
+
+                                });
+
+                            } else {
+
+                                self._execAllQueue('callback');
+
+                            }
                         }
 
-                        // if (self._isQueue('callback'))
-                        //     self._execQueue('callback');
-                        // }
-
                     }
-
-                    // console.log('exe_dispatch');
-                    // self.$el.dequeue('_dispatch');
 
                 });
 
@@ -777,11 +844,13 @@
 
         },
         _allowAction: function() {
+            console.log('_allowAction');
 
             return this.itemsCount > 1;
 
         },
         _prepare: function(callback) {
+            console.log('_prepare');
 
             var self = this;
 
@@ -801,32 +870,34 @@
 
         },
         _addQueue: function(queue, action) {
+            console.log('_addQueue');
 
             var self = this;
 
-            // console.groupCollapsed('_addQueue');
-            //     console.log(queue);
+            console.groupCollapsed('_addQueue');
+                console.log(queue);
 
                 this.$el.queue(queue, action);
 
-            //     console.log(this.$el.queue(queue).length);
-            //     console.trace();
-            //
-            // console.groupEnd('_addQueue');
+                console.log(this.$el.queue(queue).length);
+                console.trace();
+
+            console.groupEnd('_addQueue');
 
         },
         _execQueue: function(queue) {
-            // console.log('_removeQueue');
-            //
-            // console.groupCollapsed(queue);
+            console.log('_removeQueue');
+
+            console.groupCollapsed('_removeQueue');
 
                 this.$el.dequeue(queue);
-            //     console.log(this.$el.queue(queue).length);
-            //
-            // console.groupEnd(queue);
+                console.log(this.$el.queue(queue).length);
+
+            console.groupEnd('_removeQueue');
 
         },
         _execAllQueue: function(queue) {
+            console.log('_execAllQueue');
 
             var callbacks = this.$el.queue(queue);
 
@@ -834,17 +905,20 @@
 
             if (callbacks && callbacks.length > 0) {
                 callbacks.forEach(function(c) {
-                    c.call();
+                    setTimeout(function() {
+                        c.call();
+                    }, 20);
                 });
             }
-
         },
         _isQueue: function(queue) {
+            console.log('_isQueue');
 
             return this.$el.queue(queue).length > 0;
-
         },
         _dispatch: function(action, args, args1) {
+            console.log('_dispatch');
+
             var self = this;
 
             if (((action === this._fan || action === this._navigate) && !this._allowAction())) {
@@ -872,27 +946,31 @@
         },
         // public method: closes the deck
         close: function(settings) {
+            console.log('close');
 
-            if (this.isAnimating) {
-                return false;
-            }
+            if (this.isAnimating) return false;
             this._close();
 
         },
         // public method: shows next item
-        next: function() {
+        next: function(fade) {
+            console.log('next');
 
-            this._dispatch(this._navigate, 'next');
+            if (fade) this.closed = true;
+            this._dispatch(this._navigate, 'next', fade);
 
         },
         // public method: shows previous item
-        previous: function() {
+        previous: function(fade) {
+            console.log('previous');
 
-            this._dispatch(this._navigate, 'prev');
+            if (fade) this.closed = true;
+            this._dispatch(this._navigate, 'prev', fade);
 
         },
         // public method: opens the deck
         fan: function(settings) {
+            console.log('fan');
 
             this.lastFanSettings = settings;
             this._dispatch(this._fan, settings);
@@ -900,45 +978,50 @@
         },
         // public method: adds new elements
         add: function($elems, callback) {
+            console.log('add');
 
             this._dispatch(this._add, $elems, callback);
 
         },
         // public method: remove elements
         remove: function($elems, callback) {
+            console.log('remove');
 
             this._dispatch(this._remove, $elems, callback);
 
         },
         // public method: bring the element in front of the stack
         move2front : function( $elem ) {
+            console.log('move2front');
 
             this._dispatch( this._move2front, $elem);
 
         },
         // public method: events subscriber
         on : function (eventName, callback) {
+            console.log('on');
 
-                if (eventName === 'updateStack') {
-                        this._dispatch( this._onUpdatedStack, callback);
-                }
+            if (eventName === 'updateStack')
+                this._dispatch( this._onUpdatedStack, callback);
 
         },
         // public method: events unscriber
         off : function (eventName, callback) {
+            console.log('off');
 
-                if (eventName === 'updateStack') {
-                        this._dispatch( this._offUpdatedStack, callback);
-                }
+            if (eventName === 'updateStack')
+                this._dispatch( this._offUpdatedStack, callback);
 
         },
         // public method: returns the jQuery element at the top of the stack
         getTopStackElement : function() {
+            console.log('getTopStackElement');
 
-                return this._getTopStackElement();
+            return this._getTopStackElement();
 
         },
         orderStack: function(orderBy) {
+            console.log('orderStack');
 
             this._dispatch(this._orderStack, orderBy);
 
@@ -947,12 +1030,11 @@
     };
 
     var logError = function(message) {
+        console.log('logError');
 
         if (window.console) {
 
-            if (window.console.hasOwnProperty('error')) {
-                window.console.error(message);
-            }
+            window.console.error(message);
 
         }
 

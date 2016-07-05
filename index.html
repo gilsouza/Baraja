@@ -108,7 +108,9 @@
 			$(function() {
 
 				var $el = $( '#baraja-el' ),
-					baraja = $el.baraja();
+					baraja = $el.baraja({
+						reFan: true
+					});
 
 				window.barajaEl = baraja;
 
@@ -345,24 +347,27 @@
 
 				} );
 
+				var nCardID = 0;
+				var $elems2add = $('<li id="added_' + (nCardID++) + '"><img src="images/6.jpg" alt="image6"/><h4>Serenity</h4><p>Truffaut wes anderson hoodie 3 wolf moon labore, fugiat lomo iphone eiusmod vegan.</p></li><li id="added_' + (nCardID++) + '"><img src="images/7.jpg" alt="image7"/><h4>Dark Honor</h4><p>Chillwave mustache pinterest, marfa seitan umami id farm-to-table iphone.</p></li><li id="added_' + (nCardID++) + '"><img src="images/8.jpg" alt="image8"/><h4>Nested Happiness</h4><p>Minim post-ironic banksy american apparel iphone wayfarers.</p></li><li id="added_' + (nCardID++) + '"><img src="images/9.jpg" alt="image9"/><h4>Cherry Country</h4><p>Sint vinyl Austin street art odd future id trust fund, terry richardson cray.</p></li>');
+
 				// example of how to add more items
 				$( '#add' ).on( 'click', function( event ) {
 
-					if( $( this ).hasClass( 'disabled' ) ) {
-						return false;
-					}
+					// if( $( this ).hasClass( 'disabled' ) ) {
+					// 	return false;
+					// }
 
 					$( this ).addClass( 'disabled' );
 
-					baraja.add( $('<li id="added_1"><img src="images/6.jpg" alt="image6"/><h4>Serenity</h4><p>Truffaut wes anderson hoodie 3 wolf moon labore, fugiat lomo iphone eiusmod vegan.</p></li><li id="added_2"><img src="images/7.jpg" alt="image7"/><h4>Dark Honor</h4><p>Chillwave mustache pinterest, marfa seitan umami id farm-to-table iphone.</p></li><li id="added_3"><img src="images/8.jpg" alt="image8"/><h4>Nested Happiness</h4><p>Minim post-ironic banksy american apparel iphone wayfarers.</p></li><li id="added_4"><img src="images/9.jpg" alt="image9"/><h4>Cherry Country</h4><p>Sint vinyl Austin street art odd future id trust fund, terry richardson cray.</p></li>') );
+					baraja.add( $elems2add );
 
 				} );
 
 				// example of how to remove items
 				$( '#remove' ).on( 'click', function( event ) {
-					if( $( this ).hasClass( 'disabled' ) ) {
-						return false;
-					}
+					// if( $( this ).hasClass( 'disabled' ) ) {
+					// 	return false;
+					// }
 
 					$( this ).addClass( 'disabled' );
 
