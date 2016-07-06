@@ -628,6 +628,8 @@
                 stepTranslation = settings.translation / (this.itemsCount - 1),
                 cnt = 0;
 
+            this.$items.off(this.transEndEventName);
+
             this.$items.each(function(i) {
 
                 var $el = $(this),
@@ -663,6 +665,8 @@
                     translation: position,
                     step: step
                 });
+
+
 
                 self._applyTransition($el, {
                     // transform: 'translate(' + position + 'px) rotate(' + angle + 'deg)'
@@ -724,9 +728,9 @@
 
                     if (cnt === newElemsCount) {
                         // reset
-                        // self.$items = self.$el.children('li');
-                        // self.itemsCount = self.$items.length;
-                        // self._setStack();
+                        self.$items = self.$el.children('li');
+                        self.itemsCount = self.$items.length;
+                        self._setStack();
 
                         // if (callback) self._addQueue('callback', callback);
 
@@ -764,7 +768,7 @@
         _remove: function($elems, callback, transform) {
             console.log('_remove');
 
-            if ($elems.length < 1) {
+            if (!$elems.length || !this.$el.find($elems).length) {
                 this.isAnimating = false;
                 return false;
             }
