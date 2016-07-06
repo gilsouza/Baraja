@@ -470,10 +470,19 @@
 
                 self._execQueue('_dispatch');
 
-            } else if (self.options.reFan && self.lastFanSettings) {
+            } else {
+                if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
 
-                self._fan(self.lastFanSettings);
+                    self._prepare(function() {
 
+                        self._fan(self.lastFanSettings);
+
+                    });
+
+                } else {
+                    // exec calback?
+                    self._execAllQueue('callback');
+                }
             }
         },
         _move2front: function($item) {
@@ -680,7 +689,8 @@
                         self.isAnimating = false;
 
                         // if (callback) callback.call();
-                        // self._execAllQueue('callback');
+                        self._execAllQueue('callback');
+                        // self._dispatchQueue();
                     }
 
                 });
@@ -736,25 +746,26 @@
 
                         self.isAnimating = false;
 
-                        if (self._isQueue('_dispatch')) {
-
-                            self._execQueue('_dispatch');
-
-                        } else {
-
-                            if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
-
-                                self._prepare(function() {
-
-                                    self._fan.call(self, self.lastFanSettings, true);
-
-                                });
-                            } else {
-
-                                self._execAllQueue('callback');
-
-                            }
-                        }
+                        self._dispatchQueue();
+                        // if (self._isQueue('_dispatch')) {
+                        //
+                        //     self._execQueue('_dispatch');
+                        //
+                        // } else {
+                        //
+                        //     if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
+                        //
+                        //         self._prepare(function() {
+                        //
+                        //             self._fan.call(self, self.lastFanSettings, true);
+                        //
+                        //         });
+                        //     } else {
+                        //
+                        //         self._execAllQueue('callback');
+                        //
+                        //     }
+                        // }
 
                     }
 
