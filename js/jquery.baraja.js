@@ -447,30 +447,28 @@
 
                     self._dispatchQueue();
 
-                    // if (self._isQueue('_dispatch')) {
-                    //
-                    //     self._execQueue('_dispatch');
-                    //
-                    // } else if (self.options.reFan && self.lastFanSettings) {
-                    //
-                    //     self._fan(self.lastFanSettings);
-                    //
-                    // }
                 });
 
             });
 
         },
-        _dispatchQueue: function() {
+        _dispatchQueue: function(callback) {
             console.log('_dispatchQueue');
 
             var self = this;
+
+            if (callback) {
+
+                self._addQueue('callback', callback);
+
+            }
 
             if (self._isQueue('_dispatch')) {
 
                 self._execQueue('_dispatch');
 
             } else {
+
                 if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
 
                     self._prepare(function() {
@@ -483,6 +481,7 @@
                     // exec calback?
                     self._execAllQueue('callback');
                 }
+
             }
         },
         _move2front: function($item) {
@@ -502,7 +501,6 @@
 
             if (isTop) {
                 this.isAnimating = false;
-                // self._fan(self.lastFanSettings);
                 return false;
             }
 
@@ -535,19 +533,6 @@
                     self.isAnimating = false;
 
                     self._dispatchQueue();
-                    // if (self.options.reFan && self.lastFanSettings) {
-                    //     if (self._isQueue('_dispatch')) {
-                    //
-                    //         self._execQueue('_dispatch');
-                    //
-                    //     } else {
-                    //
-                    //         self._fan(self.lastFanSettings);
-                    //
-                    //     }
-                    // } else {
-                    //     self.isAnimating = false;
-                    // }
 
                 });
 
@@ -675,8 +660,6 @@
                     step: step
                 });
 
-
-
                 self._applyTransition($el, {
                     // transform: 'translate(' + position + 'px) rotate(' + angle + 'deg)'
                     transform: settings.rotate ? 'translate(' + position + 'px) rotate(' + step + 'deg)' : 'translate(' + position + 'px,' + step + 'px)'
@@ -686,11 +669,10 @@
                     $el.off(self.transEndEventName);
 
                     if (cnt === self.itemsCount - 1) {
-                        self.isAnimating = false;
 
-                        // if (callback) callback.call();
+                        self.isAnimating = false;
                         self._execAllQueue('callback');
-                        // self._dispatchQueue();
+
                     }
 
                 });
@@ -742,30 +724,9 @@
                         self.itemsCount = self.$items.length;
                         self._setStack();
 
-                        // if (callback) self._addQueue('callback', callback);
-
                         self.isAnimating = false;
 
-                        self._dispatchQueue();
-                        // if (self._isQueue('_dispatch')) {
-                        //
-                        //     self._execQueue('_dispatch');
-                        //
-                        // } else {
-                        //
-                        //     if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
-                        //
-                        //         self._prepare(function() {
-                        //
-                        //             self._fan.call(self, self.lastFanSettings, true);
-                        //
-                        //         });
-                        //     } else {
-                        //
-                        //         self._execAllQueue('callback');
-                        //
-                        //     }
-                        // }
+                        self._dispatchQueue(callback);
 
                     }
 
