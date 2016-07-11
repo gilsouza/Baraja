@@ -687,11 +687,20 @@
 
             var self = this,
                 newElemsCount = $elems.length,
+                newElems = $elems.toArray(),
                 cnt = 0;
 
-            // if (this.$el.find($elems).length)
-            //     $elems.css('opacity', 0);
-            // else
+            this.$el.find($elems).toArray().forEach(function(item) {
+                newElems.splice(newElems.indexOf(item), 1);
+            });
+
+            $elems = $(newElems);
+
+            if (!$elems.length) {
+                this.isAnimating = false;
+                this._dispatchQueue(callback);
+            }
+            else
                 $elems.css('opacity', 0).appendTo(this.$el);
 
             // reset

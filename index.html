@@ -62,7 +62,9 @@
 					<span id="nav-fanOther5">monitor</span>
 
 					<span id="add">Add items</span>
+					<span id="add-wcall">Add with callback</span>
 					<span id="remove">Remove items</span>
+					<span id="remove-wcall">Remove with callback</span>
 				</nav>
 
 				<div class="baraja-demo">
@@ -113,6 +115,7 @@
 					});
 
 				window.barajaEl = baraja;
+				window.$el = $el;
 
 				// navigation
 				$( '#nav-prev' ).on( 'click', function( event ) {
@@ -350,28 +353,39 @@
 				var nCardID = 0;
 				var $elems2add = $('<li id="added_' + (nCardID++) + '"><img src="images/6.jpg" alt="image6"/><h4>Serenity</h4><p>Truffaut wes anderson hoodie 3 wolf moon labore, fugiat lomo iphone eiusmod vegan.</p></li><li id="added_' + (nCardID++) + '"><img src="images/7.jpg" alt="image7"/><h4>Dark Honor</h4><p>Chillwave mustache pinterest, marfa seitan umami id farm-to-table iphone.</p></li><li id="added_' + (nCardID++) + '"><img src="images/8.jpg" alt="image8"/><h4>Nested Happiness</h4><p>Minim post-ironic banksy american apparel iphone wayfarers.</p></li><li id="added_' + (nCardID++) + '"><img src="images/9.jpg" alt="image9"/><h4>Cherry Country</h4><p>Sint vinyl Austin street art odd future id trust fund, terry richardson cray.</p></li>');
 
+				// debug
+				window.$elems2add = $elems2add;
+
 				// example of how to add more items
 				$( '#add' ).on( 'click', function( event ) {
-
-					// if( $( this ).hasClass( 'disabled' ) ) {
-					// 	return false;
-					// }
-
-					$( this ).addClass( 'disabled' );
 
 					baraja.add( $elems2add );
 
 				} );
 
+				// example of how to add more items with callback
+				$( '#add-wcall' ).on( 'click', function( event ) {
+
+					baraja.add( $elems2add, function() {
+						alert('done!');
+					} );
+
+				} );
+
 				// example of how to remove items
 				$( '#remove' ).on( 'click', function( event ) {
-					// if( $( this ).hasClass( 'disabled' ) ) {
-					// 	return false;
-					// }
-
-					$( this ).addClass( 'disabled' );
 
 					baraja.remove( $('[id^="added_"]') );
+
+				} );
+
+				// example of how to remove items with callback
+				$( '#remove-wcall' ).on( 'click', function( event ) {
+
+					baraja.remove( $('[id^="added_"]'), function() {
+						alert('done!');
+					} );
+
 				} );
 			});
 		</script>
