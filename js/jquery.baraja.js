@@ -790,6 +790,13 @@
                 this._dispatch(this._remove, $elems, callback);
             }
         },
+        merge: function($elems, callback) {
+            var self = this;
+
+            self.remove(self.$el.children('li').not($elems), function() {
+                self.add($elems, callback);
+            });
+        },
         // public method: bring the element in front of the stack
         move2front: function($elem) {
             // console.log('move2front');
