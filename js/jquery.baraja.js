@@ -445,14 +445,14 @@
                     self.isAnimating = false;
                     self.closed = true;
 
-                    self._dispatchQueue();
+                    self._dispatchQueue(null);
 
                 });
 
             });
 
         },
-        _dispatchQueue: function(callback) {
+        _dispatchQueue: function(callback, notRefan) {
             console.log('_dispatchQueue');
 
             var self = this;
@@ -469,7 +469,7 @@
 
             } else {
 
-                if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
+                if (self._allowAction() && self.options.reFan && self.lastFanSettings && !notRefan) {
 
                     self._prepare(function() {
 
@@ -532,7 +532,7 @@
                     $item.off(self.transEndEventName);
                     self.isAnimating = false;
 
-                    self._dispatchQueue();
+                    self._dispatchQueue(null);
 
                 });
 
@@ -687,21 +687,9 @@
 
             var self = this,
                 newElemsCount = $elems.length,
-                newElems = $elems.toArray(),
                 cnt = 0;
 
-            this.$el.find($elems).toArray().forEach(function(item) {
-                newElems.splice(newElems.indexOf(item), 1);
-            });
-
-            $elems = $(newElems);
-
-            if (!$elems.length) {
-                this.isAnimating = false;
-                this._dispatchQueue(callback);
-            }
-            else
-                $elems.css('opacity', 0).appendTo(this.$el);
+            $elems.css('opacity', 0).appendTo(this.$el);
 
             // reset
             this.$items = this.$el.children('li');
@@ -748,11 +736,6 @@
         // TODO: argumento transform
         _remove: function($elems, callback, transform) {
             console.log('_remove');
-
-            if (!$elems.length || !this.$el.find($elems).length) {
-                this.isAnimating = false;
-                return false;
-            }
 
             var self = this,
                 removeElemsCount = $elems.length,
@@ -965,14 +948,39 @@
         add: function($elems, callback) {
             console.log('add');
 
-            this._dispatch(this._add, $elems, callback);
+            var newElems = $elems.toArray();
+
+            this.$el.find($elems).toArray().forEach(function(item) {
+                newElems.splice(newElems.indexOf(item), 1);
+            });
+
+            $elems = $(newElems);
+
+            if (!$elems.length) {
+                this.isAnimating = false;
+                this._dispatchQueue(callback, true);
+            }
+            else
+                this._dispatch(this._add, $elems, callback);
 
         },
         // public method: remove elements
         remove: function($elems, callback) {
             console.log('remove');
 
-            this._dispatch(this._remove, $elems, callback);
+            var oldElems = [];
+
+            this.$el.find($elems).toArray().forEach(function(item) {
+                oldElems.push(item);
+            });
+
+            $elems = $(oldElems);
+
+            if (!$elems.length) {
+                this.isAnimating = false;
+                this._dispatchQueue(callback, true);
+            } else
+                this._dispatch(this._remove, $elems, callback);
 
         },
         // public method: bring the element in front of the stack
