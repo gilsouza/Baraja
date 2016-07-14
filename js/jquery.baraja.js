@@ -756,45 +756,50 @@
         // public method: adds new elements
         add: function($elems, callback) {
             // console.log('add');
-            var newElems = $elems.toArray();
-
-            this.$el.find($elems).toArray().forEach(function(item) {
-                newElems.splice(newElems.indexOf(item), 1);
+            var myItems = this.$items.toArray();
+            $elems = $elems.map(function(i, e) {
+                if (myItems.indexOf(e) === -1) return e;
             });
-
-            $elems = $(newElems);
 
             if (!$elems.length) {
                 this.isAnimating = false;
                 this._dispatchQueue(callback, true);
             } else {
+                console.log('adicionando:');
+                console.dir($elems);
                 this._dispatch(this._add, $elems, callback);
             }
-
         },
         // public method: remove elements
         remove: function($elems, callback) {
             // console.log('remove');
-            var oldElems = [];
-
-            this.$el.find($elems).toArray().forEach(function(item) {
-                oldElems.push(item);
+            var myItems = this.$items.toArray();
+            $elems = $elems.map(function(i, e) {
+                if (myItems.indexOf(e) > -1) return e;
             });
-
-            $elems = $(oldElems);
 
             if (!$elems.length) {
                 this.isAnimating = false;
                 this._dispatchQueue(callback, true);
             } else {
+                console.log('removendo:');
+                console.dir($elems);
                 this._dispatch(this._remove, $elems, callback);
             }
         },
         merge: function($elems, callback) {
-            var self = this;
+            var self = this,
+                myItems = this.$items.toArray(),
+                myNewItems = $elems.toArray(),
+                $newItems = $elems.map(function(i, e) {
+                    if (myItems.indexOf(e) === -1) return e;
+                }),
+                $oldItems = this.$items.map(function(i, e) {
+                    if (myNewItems.indexOf(e) === -1) return e;
+                });
 
-            self.remove(self.$el.children('li').not($elems), function() {
-                self.add($elems, callback);
+            self.remove($oldItems, function() {
+                self.add($newItems, callback);
             });
         },
         // public method: bring the element in front of the stack
