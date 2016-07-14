@@ -623,34 +623,7 @@
                         self.$items = self.$el.children('li');
                         self.itemsCount = self.$items.length;
                         self._setStack();
-                        // if (callback) {
-                        //
-                        //     self._addQueue('callback', callback);
-                        //
-                        // }
-                        //
-                        // self.isAnimating = false;
-                        //
-                        // if (self._isQueue('_dispatch')) {
-                        //
-                        //     self._execQueue('_dispatch');
-                        //
-                        // } else {
-                        //
-                        //     if (self._allowAction() && self.options.reFan && self.lastFanSettings) {
-                        //
-                        //         self._prepare(function() {
-                        //
-                        //             self._fan.call(self, self.lastFanSettings, true);
-                        //
-                        //         });
-                        //
-                        //     } else {
-                        //
-                        //         self._execAllQueue('callback');
-                        //
-                        //     }
-                        // }
+
                         self._dispatchQueue(callback);
                     }
 
@@ -675,19 +648,11 @@
         },
         _addQueue: function(queue, action) {
             // console.log('_addQueue');
-            // console.groupCollapsed('_addQueue');
-            // console.log(queue);
             this.$el.queue(queue, action);
-            // console.log(this.$el.queue(queue).length);
-            // console.trace();
-            // console.groupEnd('_addQueue');
         },
         _execQueue: function(queue) {
             // console.log('_removeQueue');
-            // console.groupCollapsed('_removeQueue');
             this.$el.dequeue(queue);
-            // console.log(this.$el.queue(queue).length);
-            // console.groupEnd('_removeQueue');
         },
         _execAllQueue: function(queue) {
             // console.log('_execAllQueue');
@@ -757,9 +722,12 @@
         add: function($elems, callback) {
             // console.log('add');
             var myItems = this.$items.toArray();
-            $elems = $elems.map(function(i, e) {
-                if (myItems.indexOf(e) === -1) return e;
-            });
+
+            if ($elems.length) {
+                $elems = $elems.map(function(i, e) {
+                    if (myItems.indexOf(e) === -1) return e;
+                });
+            }
 
             if (!$elems.length) {
                 this.isAnimating = false;
@@ -774,9 +742,12 @@
         remove: function($elems, callback) {
             // console.log('remove');
             var myItems = this.$items.toArray();
-            $elems = $elems.map(function(i, e) {
-                if (myItems.indexOf(e) > -1) return e;
-            });
+
+            if ($elems.length) {
+                $elems = $elems.map(function(i, e) {
+                    if (myItems.indexOf(e) > -1) return e;
+                });
+            }
 
             if (!$elems.length) {
                 this.isAnimating = false;
