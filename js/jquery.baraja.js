@@ -723,13 +723,13 @@
             // console.log('add');
             var myItems = this.$items.toArray();
 
-            if ($elems.length) {
+            if ($elems && $elems.length) {
                 $elems = $elems.map(function(i, e) {
                     if (myItems.indexOf(e) === -1) return e;
                 });
             }
 
-            if (!$elems.length) {
+            if (!$elems || !$elems.length) {
                 this.isAnimating = false;
                 this._dispatchQueue(callback, true);
             } else {
@@ -743,13 +743,13 @@
             // console.log('remove');
             var myItems = this.$items.toArray();
 
-            if ($elems.length) {
+            if ($elems && $elems.length) {
                 $elems = $elems.map(function(i, e) {
                     if (myItems.indexOf(e) > -1) return e;
                 });
             }
 
-            if (!$elems.length) {
+            if (!$elems || !$elems.length) {
                 this.isAnimating = false;
                 this._dispatchQueue(callback, true);
             } else {
